@@ -53,6 +53,15 @@ function App() {
     }
   }
 
+  function resetHandler() {
+    setDate("");
+    setPalindromeOutput(false);
+    setLoading(false);
+    setOutput(false);
+    setNotPalindromeOutput(false);
+    setResetButton(false);
+  }
+
   return (
     <div className="App">
       <div className="app-card">
@@ -81,7 +90,9 @@ function App() {
               {notPalindromeOutput ? (
                 <p>{`Ohh no, your birthday isn't palindrome, but the nearest date is ${nextDate[0]}. You have missed ${nextDate[1]} days`}</p>
               ) : null}
-              {resetButton ? <button>Reset</button> : null}
+              {resetButton ? (
+                <button onClick={resetHandler}>Reset</button>
+              ) : null}
             </div>
           ) : null}
         </div>
