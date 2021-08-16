@@ -2,14 +2,18 @@ import React, { useState } from "react";
 import "./App.css";
 import loadingImage from "./assets/loading.gif";
 import birthday from "./assets/birthday.jpg";
-import { dateFormatter, findNextDate } from "./checkPalindrome.js";
+import {
+  getDateAsString,
+  checkPalindromeForAllDateFormats,
+  getNextPalindromeDate,
+  getPreviousPalindromeDate,
+} from "./checkPalindrome";
 
 function App() {
   const [date, setDate] = useState("");
-  const [nextDate, setNextDate] = useState([]);
+  const [nearestDate, setNearestDate] = useState([]);
   const [loading, setLoading] = useState(false);
   const [output, setOutput] = useState(false);
-  const [palindromeBirthday, setPalindromeBirthday] = useState("");
   const [palindromeOutput, setPalindromeOutput] = useState(false);
   const [notPalindromeOutput, setNotPalindromeOutput] = useState(false);
   const [resetButton, setResetButton] = useState(false);
@@ -32,20 +36,72 @@ function App() {
       const year = dateArray[0];
       const month = dateArray[1];
       const day = dateArray[2];
-      setPalindromeBirthday(dateFormatter(year, month, day));
+      //setPalindromeBirthday(dateFormatter(year, month, day));
+      var dateObj = {
+        day: Number(day),
+        month: Number(month),
+        year: Number(year),
+      };
+
+      var dateStr = getDateAsString(dateObj);
+      var list = checkPalindromeForAllDateFormats(dateStr);
+      var isPalindrome = false;
+
+      for (let i = 0; i < list.length; i++) {
+        if (list[i]) {
+          isPalindrome = true;
+          break;
+        }
+      }
+
       setOutput(true);
       setLoading(true);
       setTimeout(() => {
-        if (palindromeBirthday) {
+        if (isPalindrome) {
           setPalindromeOutput(true);
           setLoading(false);
           setResetButton(true);
         } else {
-          const nextDate = findNextDate(year, month, day);
+          //const nextDate = findNextDate(year, month, day);
           // console.log(nextDate);
           // console.log(`Next Date: ${nextDate[0]}, difference: ${nextDate[1]}`);
+          const [ctr1, nextDate] = getNextPalindromeDate(dateObj);
+          const [ctr2, prevDate] = getPreviousPalindromeDate(dateObj);
+
+          if (ctr1 > ctr2) {
+            let arr = [];
+            let prevDateStr = getDateAsString({
+              day: prevDate.day,
+              month: prevDate.month,
+              year: prevDate.year,
+            });
+            let prevDateArr = [
+              prevDateStr.month,
+              prevDateStr.day,
+              prevDateStr.year,
+            ];
+            prevDateStr = prevDateArr.join("-");
+            arr.push(prevDateStr);
+            arr.push(ctr2);
+            setNearestDate(arr);
+          } else {
+            let arr = [];
+            let nextDateStr = getDateAsString({
+              day: nextDate.day,
+              month: nextDate.month,
+              year: nextDate.year,
+            });
+            let nextDateArr = [
+              nextDateStr.month,
+              nextDateStr.day,
+              nextDateStr.year,
+            ];
+            nextDateStr = nextDateArr.join("-");
+            arr.push(nextDateStr);
+            arr.push(ctr1);
+            setNearestDate(arr);
+          }
           setNotPalindromeOutput(true);
-          setNextDate(nextDate);
           setLoading(false);
           setResetButton(true);
         }
@@ -85,10 +141,10 @@ function App() {
             <div className="output">
               {loading ? <img src={loadingImage} alt="loading" /> : null}
               {palindromeOutput ? (
-                <p>{`Hurray!!, You birthday ${palindromeBirthday} is a  Palindrome Birthday`}</p>
+                <p>{`Hurray!!, You birthday is a  Palindrome Birthday`}</p>
               ) : null}
               {notPalindromeOutput ? (
-                <p>{`Ohh no, your birthday isn't palindrome, but the nearest date is ${nextDate[0]}. You have missed ${nextDate[1]} days`}</p>
+                <p>{`Ohh no, your birthday isn't palindrome, but the nearest date is ${nearestDate[0]}. You have missed ${nearestDate[1]} days`}</p>
               ) : null}
               {resetButton ? (
                 <button onClick={resetHandler}>Reset</button>
